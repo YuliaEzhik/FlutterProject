@@ -1,11 +1,12 @@
+import 'package:cookbook/styles/thems.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get_storage/get_storage.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
-import 'package:cookbook/NavigatorBar/NavigationBar.dart';
-import 'package:cookbook/ui/theme.dart';
-import 'package:cookbook/services/theme_services.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'NavigationBar/NavigationBar.dart';
+import 'local/cashhelper.dart';
 
 // void main() => runApp(const MyApp());
 void main() async {
@@ -14,6 +15,17 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await GetStorage.init();
+  await CashHelper.init();
+
+  bool? isdarkcashedthem = CashHelper.getThem(key: "isdark");
+  print("cash theme " + isdarkcashedthem.toString());
+  if (isdarkcashedthem != null) {
+    if (isdarkcashedthem == true) {
+      Get.changeTheme(Themes.darkThem);
+    } else {
+      Get.changeTheme(Themes.lightTheme);
+    }
+  }
   runApp(const MyApp());
 }
 
@@ -21,20 +33,19 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   //Initialialze firebase App
-  Future<FirebaseApp> _initializeFirebase() async =>
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+  Future<FirebaseApp> _initializeFirebase() async => await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: Themes.light,
-      darkTheme: Themes.dark,
-      themeMode: ThemeService().theme,
-      home: const NavigatorExample(),
+      theme: Themes.lightTheme,
+      darkTheme: Themes.darkThem,
+      themeMode: Get.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: const MyNavigationBar(),
     );
   }
 }
